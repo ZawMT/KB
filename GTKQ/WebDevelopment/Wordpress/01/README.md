@@ -38,3 +38,6 @@
 
 ### 5. Source
 Claude
+
+### 6. Additional note
+Because of this mapping in docker-compose.yml `- ./wordpress:/var/www/html`, the folder 'wordpress' is created and, initially, there are more than three thousand files there. So, those files are the default and provided files from Wordpress. If you are not doing any customisation by directly changing and / or adding files there, they are not required. A named volume will be good enough. They are mapped out into a bind mount, so that I can try out the customisation.
