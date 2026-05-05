@@ -13,18 +13,18 @@
 
    Containers should be up and running as shown in the picture. Names can be different as per environment.
 
-   ![Running Containers](RunningContainers.png)
+   ![Running Containers](screenshots/RunningContainers.png)
 
 ### 3. Verifying Wordpress
 1. Go to: http://localhost:8080/
 
    Since this is the first time running, the Wordpress installation page will show up.
 
-   ![Going to localhost](FirstRun.png)
+   ![Going to localhost](screenshots/FirstRun.png)
 
 2. Provide the necessary information as required.
 
-   ![Installing WP](WPInstall.png)
+   ![Installing WP](screenshots/WPInstall.png)
 
 3. After that you should be able to log in to Wordpress as an admin by using the username and password that you provided.
 4. Without doing any action in the admin space, you should be able to go and visit: http://localhost:8080/, and this time, the website that you set up in Step 2 should show up.
@@ -34,7 +34,7 @@
 1. Any database frontend will be required. Here, DBeaver is used.
 2. By providing the information which is set in Step 2.1, you should be able to connect to the database. In this example (docker compose), MariaDB is used, so the connection setup should choose accordingly.
 
-   ![Database Connection](DBConnection.png)
+   ![Database Connection](screenshots/DBConnection.png)
 
 ### 5. Source
 Claude
