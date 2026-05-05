@@ -35,3 +35,6 @@
 2. By providing the information which is set in Step 2.1, you should be able to connect to the database. In this example (docker compose), MariaDB is used, so the connection setup should choose accordingly.
 
    ![Database Connection](DBConnection.png)
+
+### 5. Source
+Claude
