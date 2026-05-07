@@ -1,0 +1,6 @@
+# Ignore everything created by create-next-app
+*
+
+# Except this documentation
+!README.md
+!.gitignore
