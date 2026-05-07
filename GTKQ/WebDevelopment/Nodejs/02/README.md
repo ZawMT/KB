@@ -4,10 +4,10 @@ Extends example `01` by serving the frontend over HTTP instead of opening it as 
 
 A single Node.js server handles two routes:
 
-| Route          | What it does                        |
-|----------------|-------------------------------------|
-| `GET /`        | Reads and sends `frontend/index.html` |
-| `GET /calculate` | Returns a JSON calculation result  |
+| Route                              | What it does                             |
+|------------------------------------|------------------------------------------|
+| `GET /`                            | Serves `frontend/index.html` to the browser |
+| `GET /calculate?op=&a=&b=` | Runs the calculation, returns JSON result |
 
 Because both the page and the API come from the same server (same origin), no CORS headers are needed and the frontend uses a **relative URL** (`/calculate`) instead of an absolute one.
 
@@ -40,7 +40,7 @@ http://localhost:3000
 | Frontend delivery | Opened as a local `file://` | Served over HTTP by Node.js |
 | `fetch` URL | Absolute `http://localhost:3000/calculate` | Relative `/calculate` |
 | CORS header needed | Yes (different origins) | No (same origin) |
-| Servers | 2 (backend + browser opens file) | 1 (handles everything) |
+| Servers | 1 (backend only) | 1 (serves both frontend and API) |
 | New module used | — | `fs` (to read and serve the HTML file) |
 
 ## Key Node.js Concepts Illustrated
