@@ -38,7 +38,7 @@ http://localhost:3000
 | | 01 | 02 |
 |---|---|---|
 | Frontend delivery | Opened as a local file | Served over HTTP by Node.js |
-| `fetch` URL in the frontend | Full URL `http://localhost:3000/calculate` (backend is a separate server) | Short URL `/calculate` (same server, so no host needed) |
+| API URL used in `index.html` | Full URL `http://localhost:3000/calculate` (backend is a separate server) | Short URL `/calculate` (same server, so no host needed) |
 | CORS header needed | Yes (different origins) | No (same origin) |
 | Servers | 1 (backend only) | 1 (serves both frontend and API) |
 | New module used | — | `fs` (to read and serve the HTML file) |
