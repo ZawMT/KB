@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Node.js Calculator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f0f2f5;
+    }
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+    h1 { margin-top: 0; font-size: 1.4rem; }
+    label { display: block; margin: 0.75rem 0 0.25rem; font-size: 0.9rem; color: #555; }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 1.25rem;
+      width: 100%;
+      padding: 0.6rem;
+      background: #0070f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #005cc5; }
+    #result {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #f6f8fa;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      text-align: center;
+      min-height: 2rem;
+    }
+    #result.error { color: #c0392b; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Basic Calculator</h1>
+    <p style="color:#888;font-size:0.85rem;margin-top:0">
+      Powered by a Node.js backend at <code>localhost:3000</code>
+    </p>
+
+    <label for="numA">Number A</label>
+    <input id="numA" type="number" value="10" />
+
+    <label for="operation">Operation</label>
+    <select id="operation">
+      <option value="add">Add (+)</option>
+      <option value="subtract">Subtract (-)</option>
+      <option value="multiply">Multiply (*)</option>
+      <option value="divide">Divide (/)</option>
+    </select>
+
+    <label for="numB">Number B</label>
+    <input id="numB" type="number" value="5" />
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="result">Result will appear here</div>
+  </div>
+
+  <script>
+    const BACKEND = 'http://localhost:3000';
+
+    async function calculate() {
+      const a  = document.getElementById('numA').value;
+      const b  = document.getElementById('numB').value;
+      const op = document.getElementById('operation').value;
+      const resultEl = document.getElementById('result');
+
+      resultEl.className = '';
+      resultEl.textContent = 'Calculating...';
+
+      try {
+        const response = await fetch(`${BACKEND}/calculate?op=${op}&a=${a}&b=${b}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          resultEl.className = 'error';
+          resultEl.textContent = 'Error: ' + data.error;
+        } else {
+          const symbols = { add: '+', subtract: '-', multiply: '*', divide: '/' };
+          resultEl.textContent =
+            `${data.a} ${symbols[op]} ${data.b} = ${data.result}`;
+        }
+      } catch (err) {
+        resultEl.className = 'error';
+        resultEl.textContent = 'Could not reach backend. Is server.js running?';
+      }
+    }
+  </script>
+</body>
+</html>
