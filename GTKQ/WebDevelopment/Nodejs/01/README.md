@@ -55,9 +55,9 @@ GET http://localhost:3000/calculate?op=divide&a=10&b=0
 
 | Concept | Where |
 |---------|-------|
-| `require()` — importing built-in modules | `server.js` line 3-4 |
-| `http.createServer()` — creating an HTTP server | `server.js` line 17 |
-| Request/response object (`req`, `res`) | `server.js` callback |
-| `url.parse()` — reading query parameters | `server.js` line 22 |
+| `require()` — importing built-in modules | `server.js` lines 4-5 |
+| `http.createServer()` — creating an HTTP server | `server.js` line 22 |
+| Request/response object (`req`, `res`) | `server.js` line 22 callback |
+| `url.parse()` — reading query parameters | `server.js` line 27 |
 | `res.writeHead()` / `res.end()` — sending a response | throughout `server.js` |
 | `server.listen()` — binding to a port | `server.js` last line |

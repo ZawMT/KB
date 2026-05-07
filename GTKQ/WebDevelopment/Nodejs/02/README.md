@@ -47,7 +47,7 @@ http://localhost:3000
 
 | Concept | Where |
 |---------|-------|
-| `fs.readFile()` — reading a file asynchronously | `server.js` line 30 |
-| `path.join(__dirname, ...)` — portable file paths | `server.js` line 11 |
-| Routing by `pathname` | `server.js` lines 26, 44 |
-| Serving different content types (`text/html` vs `application/json`) | `server.js` lines 35, 46 |
+| `fs.readFile()` — reading a file asynchronously | `server.js` line 34 |
+| `path.join(__dirname, ...)` — portable file paths | `server.js` line 10 |
+| Routing by `pathname` | `server.js` lines 33, 47 |
+| Serving different content types (`text/html` vs `application/json`) | `server.js` lines 40, 48 |
