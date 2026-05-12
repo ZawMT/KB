@@ -20,5 +20,5 @@ Therefore, they can be compared as follows:
 
 The confusing part is that the line between library and framework can blur — React calls itself a library but many treat it like a framework, especially with Next.js on top. So don't stress too much about the label — focus on what problem each tool solves.
 
-[Back to JavaScript](./JavaScript.md)
+[Back to JavaScript](./JavaScript.md)  
 [Back to README](./README.md)
