@@ -23,6 +23,6 @@ Full visual map can be depicted as follows:
 ![Full Visual Map](./images/JavaScript04.png)
 
 For more-focused insight on **Library vs Framework**:
-![Library vs Framework](./images/JavaScript01.png)
+![Library vs Framework](./LibraryVsFramework.md)
 
 [Back to README](./README.md)
