@@ -1,5 +1,7 @@
 [Back to README](./README.md)
 
+### JavaScript Ecosystem
+
 Regarding to web development, very often, the terms are confusing and used incorrectly. 
 Some are languages, some are frameworks and some are libraries. 
 
