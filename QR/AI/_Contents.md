@@ -15,4 +15,5 @@ In short, it's about creating machines that can mimic cognitive functions to mak
 Here are some key points to take note about AI:
 [Key points](KeyPoints.md)
 
+Here are the sub-topics:   
 [Machine Learning](./ML/_Contents.md)
