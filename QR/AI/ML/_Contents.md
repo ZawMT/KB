@@ -11,5 +11,8 @@ Here are some key points to take note about ML:
 Here are some subtle points which might be confusing:
 [Subtle points](SubtlePoints.md)
 
+About different types of ML:   
+[ML Types](Types.md)
+
 Here are some recommended readings:
 [Recommended readings](RecommendedReadings.md)
