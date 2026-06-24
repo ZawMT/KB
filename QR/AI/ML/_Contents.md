@@ -7,3 +7,9 @@ Machine learning is a subset of AI where systems learn patterns from data to mak
 
 Here are some key points to take note about ML:
 [Key points](KeyPoints.md)
+
+Here are some subtle points which might be confusing:
+[Subtle points](SubtlePoints.md)
+
+Here are some recommended readings:
+[Recommended readings](RecommendedReadings.md)
