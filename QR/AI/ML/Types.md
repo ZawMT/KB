@@ -19,7 +19,7 @@ Mixing up the ideas might be helpful to compare and contrast them.
 ---
 | AI Model Type | ML Model Type | Example |
 | --- | --- | --- |
-| Rule-Based | **Not ML**)** | Expert systems |
+| Rule-Based | **Not ML** | Expert systems |
 | ML Models | Supervised/Unsupervised/RL | Logistic Regression, K-Means, DQN |
 | Deep Learning Models | Supervised/Unsupervised/RL | CNNs, RNNs, Transformers |
 | Generative AI Models | Unsupervised/Self-Supervised | GANs, VAEs, LLMs |

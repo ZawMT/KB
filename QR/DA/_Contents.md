@@ -6,7 +6,10 @@
 Data analytics
 
 Here are some key points to take note:
-[Key points](KeyPoints.md)
+[Key points](_KeyPoints.md)
 
 Here are some key terms to take note:
-[Key points](KeyTerms.md)
+[Key points](_KeyTerms.md)
+
+Other topics to read:
+[Standard Error](StandardError.md)
