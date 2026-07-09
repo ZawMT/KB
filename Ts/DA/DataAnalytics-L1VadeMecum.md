@@ -3,8 +3,13 @@
 Companion notes for questions arising while reading [DataAnalytics-L1.md](./DataAnalytics-L1.md).
 
 ## Q&A
+[Q1: Why are there two "orthogonal cut" in the Data types note?](#orthogonal-cuts-in-the-note)
+[Q2: For Interval vs Ratio, what does "true zero" actually mean? Does 0°C being "no true zero" mean it has no meaning? What does age=0 or weight=0 mean for Ratio?](#interval-vs-ratio)
+[Q3: What is IQR? Formula? Why is it more robust than Range?](#iqr-vs-range)
+[Q4: What are skewness, kurtosis, shapes and trends?](#skewness-kurtosis-shapes-and-trends)
+---
 
-**Q: Why are there two "orthogonal cut" in the Data types note?**
+### Orthogonal cuts in the note
 
 "Orthogonal cut" = a classification axis that's independent of the main Categorical/Numerical split — it doesn't sit as a sub-branch of Nominal/Ordinal/Discrete/Continuous, but cuts across them from a different angle.
 
@@ -13,8 +18,9 @@ There are two because they're two separate, independent lenses:
 2. **Structured vs Semi-structured vs Unstructured** — how the data is organized/stored (tables vs JSON vs free text/images), regardless of whether values are categorical or numerical.
 
 Both are orthogonal to the main Categorical/Numerical hierarchy — and orthogonal to each other too, since each answers a different question about the same dataset.
+---
 
-**Q: For Interval vs Ratio, what does "true zero" actually mean? Does 0°C being "no true zero" mean it has no meaning? What does age=0 or weight=0 mean for Ratio?**
+### Interval vs Ratio
 
 True zero = zero represents the *total absence* of the quantity being measured.
 
@@ -22,9 +28,9 @@ True zero = zero represents the *total absence* of the quantity being measured.
 - **Age/Weight (Ratio):** age=0 means literally no time has elapsed since birth (absence of age); weight=0 means absence of mass. Negative age/weight isn't meaningful — unlike temperature. Because zero really means "none," ratios hold: 40 years old is truly twice 20 years old, and this stays true whether measured in years or days.
 
 Practical test: **can you double the value and have "twice as much" mean something physically real, independent of the unit chosen?** Yes → Ratio. No (zero is arbitrary) → Interval.
+---
 
-**Q: What is IQR? Formula? Why is it more robust than Range?**
-
+### IQR vs Range
 IQR (Interquartile Range) = spread of the middle 50% of the data.
 
 Formula: **IQR = Q3 − Q1**
@@ -34,8 +40,9 @@ Formula: **IQR = Q3 − Q1**
 Robustness vs Range: Range = Max − Min, so it depends entirely on the two most extreme values — one outlier (data-entry error, a billionaire in an income dataset) can blow it up even if the rest of the data is tightly clustered. IQR ignores the top 25% and bottom 25% entirely, so outliers fall outside the Q1–Q3 window and don't affect it at all — only the "middle" of the data matters, which barely shifts even with a few extreme points.
 
 Side note: this is also the basis for outlier detection — values below Q1 − 1.5×IQR or above Q3 + 1.5×IQR are commonly flagged as outliers (box-plot whiskers).
+---
 
-**Q: What is skewness and kurtosis?**
+### Skewness, Kurtosis, Shapes, and Trends
 
 **Skewness** — asymmetry of a distribution around its mean.
 - Symmetric (≈0): mirrors both sides, Mean ≈ Median ≈ Mode (e.g., normal distribution).
@@ -57,8 +64,6 @@ Formula: Kurtosis = E[(X − μ)⁴] / σ⁴
 Why both matter: two datasets can share the same mean/std-dev but look totally different in shape — one symmetric/normal-tailed, another skewed with fat tails. Many statistical methods (t-tests, linear regression) assume normality, so high skew/kurtosis flags that assumption may not hold.
 
 ![DataTrends](./images/DataTrends.png)
-
-**Q: Add the ideas of "shape" and "trends"**
 
 **Shape** — how a *single distribution's curve* is formed at one point in time: is it symmetric or lopsided (skewness), is it peaked with fat tails or flat with thin tails (kurtosis)? Shape describes a snapshot — feed it a batch of data (income, test scores, heights) and it tells you how that batch is distributed around its center. This is exactly the "Shape" bucket in the original note (`Shape — Skewness, Kurtosis`), and it's what the image above visualizes.
 
