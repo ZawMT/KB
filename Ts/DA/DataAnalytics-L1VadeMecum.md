@@ -3,15 +3,15 @@
 Companion notes for questions arising while reading [DataAnalytics-L1.md](./DataAnalytics-L1.md).
 
 ## Q&A
-[Q1: Why are there two "orthogonal cut" in the Data types note?](#orthogonal-cuts-in-the-note)
-[Q2: For Interval vs Ratio, what does "true zero" actually mean? Does 0°C being "no true zero" mean it has no meaning? What does age=0 or weight=0 mean for Ratio?](#interval-vs-ratio)
-[Q3: What is IQR? Formula? Why is it more robust than Range?](#iqr-vs-range)
-[Q4: What are skewness, kurtosis, shapes and trends?](#skewness-kurtosis-shapes-and-trends)
-[Q5: What is Z-Score?](#z-score)
-[Q6: What is Percentiles and Quantiles?](#percentiles-and-quantiles)
-[Q7: What are the formula for mean, median, and mode?](#mean-median-mode)
-[Q8: What is variance and standard deviation?](#variance-and-standard-deviation)
----
+[Q1: Why are there two "orthogonal cut" in the Data types note?](#orthogonal-cuts-in-the-note)    
+[Q2: For Interval vs Ratio, what does "true zero" actually mean? Does 0°C being "no true zero" mean it has no meaning? What does age=0 or weight=0 mean for Ratio?](#interval-vs-ratio)   
+[Q3: What is IQR? Formula? Why is it more robust than Range?](#iqr-vs-range)   
+[Q4: What are skewness, kurtosis, shapes and trends?](#skewness-kurtosis-shapes-and-trends)    
+[Q5: What is Z-Score?](#z-score)     
+[Q6: What is Percentiles and Quantiles?](#percentiles-and-quantiles)   
+[Q7: What are the formula for mean, median, and mode?](#mean-median-mode)     
+[Q8: What is variance and standard deviation?](#variance-and-standard-deviation)   
+  ---
 
 ### Orthogonal cuts in the note
 
