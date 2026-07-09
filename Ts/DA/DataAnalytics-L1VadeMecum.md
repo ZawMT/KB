@@ -7,6 +7,10 @@ Companion notes for questions arising while reading [DataAnalytics-L1.md](./Data
 [Q2: For Interval vs Ratio, what does "true zero" actually mean? Does 0°C being "no true zero" mean it has no meaning? What does age=0 or weight=0 mean for Ratio?](#interval-vs-ratio)
 [Q3: What is IQR? Formula? Why is it more robust than Range?](#iqr-vs-range)
 [Q4: What are skewness, kurtosis, shapes and trends?](#skewness-kurtosis-shapes-and-trends)
+[Q5: What is Z-Score?](#z-score)
+[Q6: What is Percentiles and Quantiles?](#percentiles-and-quantiles)
+[Q7: What are the formula for mean, median, and mode?](#mean-median-mode)
+[Q8: What is variance and standard deviation?](#variance-and-standard-deviation)
 ---
 
 ### Orthogonal cuts in the note
@@ -70,4 +74,101 @@ Why both matter: two datasets can share the same mean/std-dev but look totally d
 **Trend** — how a value *changes across an ordered sequence*, usually time (e.g., monthly revenue, daily active users, temperature over a year). A trend is directional: upward, downward, flat, cyclical/seasonal. Trend analysis lives in time-series analysis, not in the Shape category — a distribution's skewness doesn't tell you whether values are rising or falling over time, and a trending time series doesn't need to be skewed at all.
 
 Why the distinction matters: skewness/kurtosis answer "what does the data look like right now, all together?" while trend answers "which way is the data moving as time (or sequence) progresses?" They're independent — a dataset can be highly skewed but flat over time, or symmetric (normal-shaped) but trending sharply upward. So "shape" and "trend" are two different lenses on data, not interchangeable terms — skewness/kurtosis are shape stats, not trend stats.
+---
+
+### Z-Score
+
+**Plain idea:** Z-score = "how many std-lengths away from the mean is this value?" — same as asking "how many times does the std fit into the gap between this value and the mean?"
+
+**Example:** std = 2, value is 6 away from the mean → 2 fits into 6 exactly 3 times → Z = 3. That's it — just a division.
+
+Formula: **Z = (X − μ) / σ**
+- top = distance from the mean (X − μ)
+- bottom = the size of one "std unit" (σ)
+- dividing tells you how many of those units fit in the distance
+
+Interpretation:
+- Z = 0 → value equals the mean
+- Z = +1 → exactly 1 std above the mean
+- Z = −2 → exactly 2 std below the mean
+- Sign (+/−) = which side of the mean; number = how many std-lengths
+
+Why it's useful (one line each):
+1. **Standardization** — turns any unit (dollars, cm, test score) into "# of std away," so values from different scales become comparable.
+2. **Outlier detection** — |Z| > 3 is usually flagged as an extreme value.
+3. **Probability lookup** — for normal data, Z maps to a percentile (Z = 1.96 → 97.5th percentile).
+
+A *Position* statistic (`Position — Percentiles, Quantiles, Z-score` in the original note). Also the building block behind [Skewness, Kurtosis](#skewness-kurtosis-shapes-and-trends) — those formulas are just "average of Z-scores cubed/to-the-4th-power."
+---
+
+### Percentiles and Quantiles
+
+**Percentile** — the value below which a given % of the data falls. Pth percentile → P% of data sits below it, (100−P)% sits above.
+
+Example: 90th percentile on a test → 90% of test-takers scored below you.
+
+**Quantile** — the umbrella term for cut-points that divide sorted data into equal-sized groups. Percentile is just one *flavor* of quantile (100 groups). Others:
+- **Quartiles** — 4 groups (Q1, Q2, Q3) → same Q1/Q3 as in [IQR](#iqr-vs-range): Q1 = 25th percentile, Q2 = 50th percentile = **median**, Q3 = 75th percentile.
+- **Deciles** — 10 groups (D1...D9)
+- **Percentiles** — 100 groups (P1...P99)
+
+So "quantile" = umbrella word; "percentile/quartile/decile" = specific flavors, just slicing the sorted data into a different number of equal parts.
+
+How to find one: sort the data, walk P% of the way through the sorted list — the value you land on is that percentile.
+
+Why useful: unlike mean/std, percentiles/quantiles don't assume any distribution shape — they just describe position within the actual sorted data, so they're robust to outliers/skew (same robustness idea behind [IQR](#iqr-vs-range) = Q3 − Q1).
+---
+
+### Mean, Median, Mode
+
+Sample data: 4, 8, 6, 5, 3, 8, 9
+
+**Mean** — arithmetic average.
+Formula: **x̄ = (Σx) / n**
+Sum = 4+8+6+5+3+8+9 = 43, n = 7 → Mean = 43/7 = **6.14**
+
+**Median** — middle value when sorted (splits data 50/50).
+- n odd → value at position (n+1)/2
+- n even → average of the two middle values
+
+Sorted: 3, 4, 5, 6, 8, 8, 9 (n=7, odd) → middle position = (7+1)/2 = 4th value → **6**
+If we add 10: 3, 4, 5, 6, 8, 8, 9, 10 (n=8, even) → middle two = 6, 8 → Median = (6+8)/2 = **7**
+
+**Mode** — most frequent value(s). No formula, just count frequency.
+Same data: 3, 4, 5, 6, 8, 8, 9 → 8 appears twice, rest appear once → Mode = **8**
+(Can have no mode, one mode, or multiple — e.g., 1,1,2,2,3 is bimodal: modes 1 and 2.)
+---
+
+### Variance and Standard Deviation
+
+**Variance** — average of squared deviations from the mean (squaring avoids +/− deviations canceling out).
+**Standard Deviation** — √variance (brings the unit back to the original scale, e.g., dollars instead of dollars²).
+
+Formulas:
+- Population variance: **σ² = Σ(x − μ)² / N**
+- Sample variance: **s² = Σ(x − x̄)² / (n − 1)**
+- Std dev: **σ = √σ²** (population), **s = √s²** (sample)
+
+Sample variance divides by n−1, not n ("Bessel's correction") — a sample's own mean is pulled slightly toward its own data, so deviations from it slightly underestimate true population spread; n−1 corrects for that.
+
+Worked example — same data as [Mean/Median/Mode](#mean-median-mode): 4, 8, 6, 5, 3, 8, 9 (mean = 6.14)
+
+| x | x − mean | (x − mean)² |
+|---|----------|-------------|
+| 4 | −2.14 | 4.59 |
+| 8 | 1.86 | 3.45 |
+| 6 | −0.14 | 0.02 |
+| 5 | −1.14 | 1.31 |
+| 3 | −3.14 | 9.88 |
+| 8 | 1.86 | 3.45 |
+| 9 | 2.86 | 8.16 |
+
+Sum of squared deviations ≈ 30.86
+
+- Population variance = 30.86/7 ≈ **4.41**
+- Sample variance = 30.86/6 ≈ **5.14**
+- Population std dev = √4.41 ≈ **2.10**
+- Sample std dev = √5.14 ≈ **2.27**
+
+These 7 values are a sample (not the full population), so **s ≈ 2.27** is the one you'd normally report.
 
