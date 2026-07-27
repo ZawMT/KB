@@ -17,3 +17,6 @@ Here are some key points to take note about AI:
 
 Here are the sub-topics:   
 [Machine Learning](./ML/_Contents.md)
+
+### TODO
+ECLAT: Equivalence Class Clustering and bottom-up Lattice Traversal: Data Compression / Data Mining / Generalising Pattern (from lecture)
