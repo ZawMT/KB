@@ -34,10 +34,20 @@ foreach ($bad as &$v) {         // $v now aliases $bad[2]
 }
 echo "  \$v is still an alias for the last element: $v\n";
 print_r($bad);
+
 foreach ($bad as $v) {          // each round assigns into $bad[2]!
     echo "  inside loop, \$v = $v\n";
 }
 dump("without unset(\$v)", $bad);
+
+// Just to demonstrate further
+// If the loop stops after one iteration, $v still points at the first element.
+echo "  Further demonstration: Now let's break after one iteration:\n";
+foreach ($bad as $v) {         // $v now aliases $bad[2]
+    echo "  inside loop, \$v = $v\n";
+    break;
+}
+print_r($bad);
 
 $good = ["a", "b", "c"];
 foreach ($good as &$v) {
