@@ -20,6 +20,13 @@ the scheduler, and a deploy script.
 The same architecture built into images and pulled from a registry: multi-stage builds,
 what has to move off the container filesystem, and rollback by image tag.
 
+## Notes
+
+Side topics that come up across the lessons rather than belonging to one of them.
+
+[Composer](./Notes/Composer.md) — `require` vs `global require`, the PATH gotcha,
+`laravel/installer`, `install` vs `update`, and the production flags.
+
 ## How These Fit Together
 
 Lesson 02 and lessons 03/04 answer different questions:
