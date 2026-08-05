@@ -19,33 +19,40 @@ Laravel also needs a few PHP extensions (`mbstring`, `openssl`, `pdo`, `tokenize
 ## Create the App
 
 Navigate to the folder where this file resides.
-Then create a folder (e.g. testprj) to try out creating the Laravel app.
-And then go into (command 'cd') that folder and run one of the following:
+
+There are two ways to create the app, and they achieve the same thing.
+**Use one or the other — not both, and not one after the other.**
+
+Note that they differ in who creates the project folder, so the `cd` step is not the same.
+
+### Option A — Composer (recommended)
+
+Nothing to install first. You make the folder, then fill it:
 
 ```bash
-# Using Composer — no prior install needed, works everywhere
+mkdir testprj && cd testprj
 composer create-project laravel/laravel .
-
-# Using the Laravel installer — needs a one-time global install first
-composer global require laravel/installer
-laravel new testprj
 ```
 
-> If `laravel new` comes back as "command not found" after the global install, the installer is
-> there but its folder is not on your `PATH`. Find the folder with
-> `composer global config bin-dir --absolute` (typically `~/.composer/vendor/bin`) and add it in
-> `~/.zshrc`:
->
-> ```bash
-> export PATH="$HOME/.composer/vendor/bin:$PATH"
-> ```
->
-> The `composer create-project` route above needs none of this, which is why it is listed first.
+The `.` at the end means "create the project in the **current** folder" instead of creating a new
+subfolder — which is why the folder has to exist and be the working directory first. This route
+produces the plain skeleton with no questions asked.
 
-The `.` at the end of the Composer command means "create the project in the current folder"
-instead of creating a new subfolder.
+### Option B — the Laravel installer
 
-The installer (`laravel new`) will ask a few questions:
+A convenience wrapper. It needs a one-time tool install, so here the two commands **do** run in
+sequence — install the tool, then use it:
+
+```bash
+composer global require laravel/installer   # once, ever — installs the `laravel` command
+laravel new testprj                         # then this creates the app
+```
+
+Run this from the folder where this README is, **without** creating `testprj` yourself —
+`laravel new testprj` makes that folder as part of its job. (Pre-creating it and running the
+command inside would give you `testprj/testprj`.)
+
+Unlike Option A, this one asks a few questions:
 
 ```
 Would you like to install a starter kit? › none / react / vue / livewire
@@ -54,8 +61,26 @@ Which database will your application use? › SQLite / MySQL / MariaDB / Postgre
 Would you like to run the default database migrations? › yes / no
 ```
 
-For a basic start, accept the defaults — no starter kit and SQLite. SQLite needs no database
-server: it is just a file at `database/database.sqlite`.
+For a basic start, accept the defaults — no starter kit and SQLite.
+
+> **`composer global require` is not a project command.** It installs a command-line tool into
+> `~/.composer` for your whole user account, and the folder you run it from is irrelevant —
+> running it inside a project adds nothing to that project's `composer.json` or `vendor/`.
+> See [Notes/Composer.md](../Notes/Composer.md) for the full distinction.
+
+> **If `laravel new` says "command not found"** after the global install, the tool is installed
+> but its folder is not on your `PATH`. Find it with
+> `composer global config bin-dir --absolute` (typically `~/.composer/vendor/bin`) and add it in
+> `~/.zshrc`:
+>
+> ```bash
+> export PATH="$HOME/.composer/vendor/bin:$PATH"
+> ```
+
+### Either way
+
+Both end up with the same project. SQLite is the default database and needs no database server —
+it is just a file at `database/database.sqlite`.
 
 ## Run the App
 

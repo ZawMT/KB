@@ -23,6 +23,20 @@ composer global config bin-dir --absolute
 # → /Users/zaw/.composer/vendor/bin
 ```
 
+### Which folder do I run it in?
+
+For `global`, **it does not matter** — that is the whole point of the word. The command writes to
+`~/.composer/` wherever you happen to be standing. Running it inside a project does *not* add
+anything to that project's `composer.json`, `composer.lock` or `vendor/`.
+
+| Goal | Command | Run from |
+|---|---|---|
+| Create a **new** project | `composer create-project laravel/laravel .` | An empty folder |
+| Add a package **to** a project | `composer require vendor/package` | Inside the project |
+| Install a **CLI tool** for yourself | `composer global require vendor/tool` | Anywhere — directory ignored |
+
+The middle row is the everyday one. `global` is rare — a handful of tools, installed once.
+
 ### The PATH gotcha
 
 That `bin` folder is **not** on the PATH by default on macOS. So a global install can appear to
@@ -44,6 +58,10 @@ export PATH="$HOME/.composer/vendor/bin:$PATH"
 
 `laravel/installer` is one of those CLI tools. It provides the `laravel` command, essentially
 just `laravel new`. It is a convenience wrapper — **not** a requirement for using Laravel.
+
+Note what that means about timing: it exists to **create** projects, so it is only of use
+*before* a project exists. Once a project has been made with `composer create-project`, installing
+it adds nothing — the two are alternatives to each other, not consecutive steps.
 
 Two ways to start a project, same end result:
 
