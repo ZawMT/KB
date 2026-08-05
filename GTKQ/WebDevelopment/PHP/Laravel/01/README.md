@@ -9,7 +9,7 @@ Laravel needs PHP and Composer (the PHP package manager).
 brew install php
 brew install composer
 
-php -v         # PHP 8.2 or newer is required by current Laravel
+php -v         # Laravel 13 requires PHP 8.3 or newer ("php": "^8.3" in composer.json)
 composer -V
 ```
 
@@ -89,6 +89,13 @@ php artisan serve
 ```
 
 Then open your browser at `http://localhost:8000`.
+
+You get Laravel's default welcome page. Everything on it — **Documentation**, **Laracasts**,
+**Deploy now**, **View changelog** — is a plain external hyperlink in
+`resources/views/welcome.blade.php`. "Deploy now" points at
+[Laravel Cloud](https://cloud.laravel.com), Laravel's paid hosting platform; it is an advert, not
+a function, and clicking it does nothing to your project. That whole file is a placeholder and is
+safe to replace or delete.
 
 `artisan` is Laravel's command-line tool — the same file is used for generating code,
 running migrations, clearing caches, and so on.
