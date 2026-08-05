@@ -31,6 +31,17 @@ composer global require laravel/installer
 laravel new testprj
 ```
 
+> If `laravel new` comes back as "command not found" after the global install, the installer is
+> there but its folder is not on your `PATH`. Find the folder with
+> `composer global config bin-dir --absolute` (typically `~/.composer/vendor/bin`) and add it in
+> `~/.zshrc`:
+>
+> ```bash
+> export PATH="$HOME/.composer/vendor/bin:$PATH"
+> ```
+>
+> The `composer create-project` route above needs none of this, which is why it is listed first.
+
 The `.` at the end of the Composer command means "create the project in the current folder"
 instead of creating a new subfolder.
 
