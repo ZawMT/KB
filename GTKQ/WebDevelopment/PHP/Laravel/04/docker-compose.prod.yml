@@ -1,0 +1,124 @@
+# Production stack: pulls prebuilt images from a registry and runs them.
+#
+# Note there is no "build:" anywhere. Images are built once — on your machine
+# or in CI — pushed to a registry, and pulled here by tag. The server never
+# sees the source code, Composer, or Node.
+#
+# Deploy on the server with:
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Values come from a .env file sitting next to this one ON THE SERVER.
+# See env.production.example — it is NOT committed to git.
+
+services:
+  # ---------------------------------------------------------------------
+  # nginx — the only container exposed to the outside
+  # ---------------------------------------------------------------------
+  web:
+    image: ${REGISTRY_IMAGE}-web:${IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      # Port 80 only. HTTPS is terminated by whatever sits in front of this —
+      # a cloud load balancer, or Caddy/Traefik on the same host. Putting
+      # certificates inside the application image makes the image
+      # environment-specific, which defeats the purpose.
+      - "80:80"
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # ---------------------------------------------------------------------
+  # PHP-FPM — serves web requests
+  # ---------------------------------------------------------------------
+  app:
+    image: ${REGISTRY_IMAGE}:${IMAGE_TAG}
+    restart: unless-stopped
+    env_file:
+      # Contains APP_KEY and the database password. Root-owned, chmod 600,
+      # never committed. See env.production.example.
+      - .env
+    depends_on:
+      redis:
+        condition: service_healthy
+    # No volumes. The container filesystem is disposable: logs go to stdout,
+    # sessions and cache to Redis, uploads to S3. Anything written inside is
+    # gone on the next deploy, by design.
+
+  # ---------------------------------------------------------------------
+  # Queue workers — the Supervisor of lesson 03, replaced by the restart policy
+  # ---------------------------------------------------------------------
+  queue:
+    # Same image as `app`. One build, several roles, differing only by command.
+    image: ${REGISTRY_IMAGE}:${IMAGE_TAG}
+    restart: unless-stopped
+    env_file:
+      - .env
+    # --max-time recycles the worker hourly so any memory leak is bounded;
+    # Docker's restart policy brings it straight back. This is exactly what
+    # the Supervisor config in lesson 03 was doing.
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    # Scale with:  docker compose -f docker-compose.prod.yml up -d --scale queue=3
+    deploy:
+      replicas: 2
+    # Give an in-flight job time to finish on SIGTERM before the container is
+    # killed. Should exceed the runtime of the slowest job.
+    stop_grace_period: 60s
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------
+  # Scheduler — the cron entry of lesson 03
+  # ---------------------------------------------------------------------
+  scheduler:
+    image: ${REGISTRY_IMAGE}:${IMAGE_TAG}
+    restart: unless-stopped
+    env_file:
+      - .env
+    # schedule:work is a long-running process that ticks every minute itself,
+    # so no crontab is needed inside the container.
+    #
+    # IMPORTANT: exactly one replica, ever. Two schedulers means every
+    # scheduled task runs twice.
+    command: php artisan schedule:work
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------
+  # Redis — sessions, cache, queue
+  # ---------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Not published to the host — reachable only on the compose network.
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------
+  # The database is deliberately NOT here
+  # ---------------------------------------------------------------------
+  # A containerised database on the app server means its data lives in a volume
+  # on that one machine, with backups and upgrades entirely your problem, and
+  # no ability to move the app elsewhere without moving the data.
+  #
+  # Use a managed database instead (RDS, DigitalOcean Managed MySQL, PlanetScale)
+  # and point DB_HOST at it in .env. Snapshots and failover come with it.
+  #
+  # If it must be self-hosted, the mysql service from lesson 02 works — but add
+  # a real backup job before putting anything on it that matters.
+
+volumes:
+  redis_data:

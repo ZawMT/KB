@@ -1,0 +1,125 @@
+# SAMPLE — build, push, and deploy the Laravel images.
+#
+# This file is inert where it sits. To use it, copy it into the Laravel
+# project's repository as .github/workflows/deploy.yml — GitHub only runs
+# workflows found in that directory.
+#
+# ---------------------------------------------------------------------------
+# CREDENTIALS THIS NEEDS
+# ---------------------------------------------------------------------------
+# Add these under: repository → Settings → Secrets and variables → Actions.
+# They are write-only once saved and are masked in logs. Nothing below is a
+# credential you can find in this repo — each has to be created by you.
+#
+#   SSH_HOST         Server IP or hostname, e.g. 203.0.113.10
+#   SSH_USER         The deploy user created in lesson 03, e.g. deploy
+#   SSH_PRIVATE_KEY  A private key whose PUBLIC half is in the server's
+#                    ~/.ssh/authorized_keys. Generate a dedicated key for CI:
+#                      ssh-keygen -t ed25519 -f deploy_ci -C "github-actions"
+#                    Paste the contents of `deploy_ci` (the private one) here,
+#                    and append `deploy_ci.pub` on the server. Do not reuse
+#                    your personal SSH key.
+#
+# GITHUB_TOKEN is provided automatically and is what authenticates the push to
+# ghcr.io — no registry password needs storing for GitHub Container Registry.
+# For Docker Hub instead, add DOCKERHUB_USERNAME and a DOCKERHUB_TOKEN
+# (an access token from hub.docker.com → Account Settings → Personal access
+# tokens, not your account password) and swap the login step.
+
+name: Deploy
+
+on:
+  push:
+    tags:
+      # Deploy on version tags only, so an accidental push to main does not
+      # ship. Trigger with: git tag v1.0.0 && git push origin v1.0.0
+      - 'v*'
+  workflow_dispatch:   # also allow deploying manually from the Actions tab
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write     # required to push to ghcr.io
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          # Automatically provided by GitHub — no secret to configure.
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The git tag (v1.0.0) becomes the image tag, so the running version is
+      # always traceable back to an exact commit.
+      - name: Derive image tag
+        id: tag
+        run: echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push the app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: app
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.value }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push the web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: web
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:${{ steps.tag.outputs.value }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+    outputs:
+      image_tag: ${{ steps.tag.outputs.value }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE_TAG
+          script: |
+            set -e
+            cd /opt/myapp
+
+            # Point the stack at the new version. The server's .env holds every
+            # other value; only the tag changes on a deploy.
+            sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/" .env
+
+            docker compose -f docker-compose.prod.yml pull
+
+            # Migrations FIRST, as a one-shot container, before any new app
+            # container starts. --rm so it does not linger. This runs exactly
+            # once regardless of how many replicas are about to start.
+            docker compose -f docker-compose.prod.yml run --rm app \
+                php artisan migrate --force
+
+            docker compose -f docker-compose.prod.yml up -d
+
+            # Drop images from previous releases so the disk does not fill.
+            docker image prune -f
+        env:
+          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}

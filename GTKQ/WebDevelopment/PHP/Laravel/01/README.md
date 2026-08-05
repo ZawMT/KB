@@ -1,0 +1,215 @@
+# Laravel — Creating Your First App
+
+## Prerequisites
+
+Laravel needs PHP and Composer (the PHP package manager).
+
+```bash
+# In Mac
+brew install php
+brew install composer
+
+php -v         # PHP 8.2 or newer is required by current Laravel
+composer -V
+```
+
+Laravel also needs a few PHP extensions (`mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`,
+`ctype`, `json`, `curl`). The `brew install php` build already includes all of them.
+
+## Create the App
+
+Navigate to the folder where this file resides.
+Then create a folder (e.g. testprj) to try out creating the Laravel app.
+And then go into (command 'cd') that folder and run one of the following:
+
+```bash
+# Using Composer — no prior install needed, works everywhere
+composer create-project laravel/laravel .
+
+# Using the Laravel installer — needs a one-time global install first
+composer global require laravel/installer
+laravel new testprj
+```
+
+The `.` at the end of the Composer command means "create the project in the current folder"
+instead of creating a new subfolder.
+
+The installer (`laravel new`) will ask a few questions:
+
+```
+Would you like to install a starter kit? › none / react / vue / livewire
+Which testing framework do you prefer? › Pest / PHPUnit
+Which database will your application use? › SQLite / MySQL / MariaDB / PostgreSQL
+Would you like to run the default database migrations? › yes / no
+```
+
+For a basic start, accept the defaults — no starter kit and SQLite. SQLite needs no database
+server: it is just a file at `database/database.sqlite`.
+
+## Run the App
+
+```bash
+php artisan serve
+```
+
+Then open your browser at `http://localhost:8000`.
+
+`artisan` is Laravel's command-line tool — the same file is used for generating code,
+running migrations, clearing caches, and so on.
+
+## What Gets Created
+
+```
+testprj/
+├── app/
+│   ├── Http/Controllers/     # Controllers — the code behind each route
+│   ├── Models/               # Eloquent models (one class per database table)
+│   └── Providers/            # Application bootstrapping
+├── bootstrap/                # Framework startup files (rarely touched)
+├── config/                   # Configuration files (app, database, mail, ...)
+├── database/
+│   ├── migrations/           # Versioned database schema changes
+│   ├── seeders/              # Sample/starter data
+│   └── database.sqlite       # The SQLite database file (if SQLite was chosen)
+├── public/
+│   └── index.php             # The single entry point — every request comes through here
+├── resources/
+│   ├── views/                # Blade templates (.blade.php)
+│   ├── css/  js/             # Frontend assets
+├── routes/
+│   ├── web.php               # Browser routes
+│   └── console.php           # Custom artisan commands
+├── storage/                  # Logs, caches, compiled views, uploaded files
+├── tests/                    # Tests
+├── vendor/                   # Installed dependencies (auto-generated)
+├── .env                      # Environment settings — DB, app key, debug flag
+├── artisan                   # The command-line tool
+└── composer.json             # Project dependencies and scripts
+```
+
+## Key Files to Know
+
+| File | Purpose |
+|------|---------|
+| `routes/web.php` | Maps URLs to code — the place to start reading any Laravel app |
+| `app/Http/Controllers/` | Where request-handling classes live |
+| `resources/views/welcome.blade.php` | The home page you see at `/` — edit this to change it |
+| `.env` | Database credentials, app key, `APP_DEBUG` — never committed to git |
+| `config/app.php` | App settings; reads mostly from `.env` |
+| `composer.json` | Lists dependencies; `composer install` recreates `vendor/` |
+
+## A Minimal Walkthrough
+
+### 1. A route that returns text
+
+In `routes/web.php`:
+
+```php
+Route::get('/hello', function () {
+    return 'Hello from Laravel';
+});
+```
+
+Visit `http://localhost:8000/hello`.
+
+### 2. A route that returns a view
+
+Create `resources/views/greet.blade.php`:
+
+```blade
+<h1>Hello, {{ $name }}</h1>
+```
+
+And in `routes/web.php`:
+
+```php
+Route::get('/greet/{name}', function (string $name) {
+    return view('greet', ['name' => $name]);
+});
+```
+
+Visit `http://localhost:8000/greet/Zaw`.
+
+`{{ }}` is Blade's echo syntax — it escapes HTML automatically, unlike a raw `<?= ?>`.
+
+### 3. The same thing through a controller
+
+```bash
+php artisan make:controller GreetController
+```
+
+In `app/Http/Controllers/GreetController.php`:
+
+```php
+public function show(string $name)
+{
+    return view('greet', ['name' => $name]);
+}
+```
+
+And in `routes/web.php`:
+
+```php
+use App\Http\Controllers\GreetController;
+
+Route::get('/greet/{name}', [GreetController::class, 'show']);
+```
+
+Controllers are the normal way once a route needs more than a line or two.
+
+### 4. A table and a model
+
+```bash
+php artisan make:model Note --migration
+```
+
+In the new file under `database/migrations/`:
+
+```php
+Schema::create('notes', function (Blueprint $table) {
+    $table->id();
+    $table->string('title');
+    $table->text('body');
+    $table->timestamps();
+});
+```
+
+Then apply it:
+
+```bash
+php artisan migrate
+```
+
+Now `App\Models\Note` can read and write that table:
+
+```php
+Route::get('/notes', function () {
+    Note::create(['title' => 'First', 'body' => 'Trying Eloquent']);
+    return Note::all();
+});
+```
+
+Returning a model or collection from a route gives JSON automatically.
+
+## Useful artisan Commands
+
+| Command | What it does |
+|---------|--------------|
+| `php artisan serve` | Start the development server |
+| `php artisan route:list` | Show every registered route |
+| `php artisan make:controller NameController` | Generate a controller |
+| `php artisan make:model Name --migration` | Generate a model plus its migration |
+| `php artisan migrate` | Apply pending migrations |
+| `php artisan migrate:fresh` | Drop all tables and re-run migrations |
+| `php artisan tinker` | Interactive REPL with the app booted |
+| `php artisan config:clear` | Clear cached configuration |
+
+## Key Information
+
+Laravel is a framework, not a library — the generated project is a full application structure,
+so it is far from the thin, single-file scripts in the [CLS](../../CLS/README.md) folder.
+Every request goes through `public/index.php`, which boots the framework and hands the request
+to `routes/web.php`. Almost everything else — controllers, models, views — is reached from there.
+
+`vendor/` and `.env` are generated locally and are normally excluded from git; `composer install`
+plus a copy of `.env.example` recreates them on another machine.

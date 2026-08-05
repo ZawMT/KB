@@ -1,0 +1,28 @@
+# Keeps the build context small and secrets out of the image.
+# Copy this file into the root of the Laravel project (next to artisan).
+
+.git
+.gitignore
+
+# Reinstalled inside the container; host copies may target a different OS/PHP.
+vendor
+node_modules
+
+# Secrets — the running container gets these via the bind mount and Compose,
+# never baked into an image layer.
+.env
+.env.*
+!.env.example
+
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+public/build
+public/hot
+
+.DS_Store
+.idea
+.vscode

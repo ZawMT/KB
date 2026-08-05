@@ -1,0 +1,80 @@
+# Development stack for a Laravel app: PHP, MySQL, Redis, Mailpit.
+# Copy this file into the root of the Laravel project (next to artisan).
+#
+# Compose reads the .env file sitting beside this one — which in a Laravel
+# project is Laravel's own .env. So the ${...} values below come from there.
+# The ":-default" parts are fallbacks used when the key is absent.
+#
+# No "version:" key — it has been obsolete since Compose v2 and current
+# versions warn about it.
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    ports:
+      - "8000:8000"
+    volumes:
+      # Bind mount: the project folder is the container's working directory,
+      # so edits on the host take effect immediately with no rebuild.
+      - .:/var/www/html
+    environment:
+      # Belt and braces — these should already be set in .env.
+      DB_HOST: mysql
+      REDIS_HOST: redis
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+  mysql:
+    image: mysql:8.4
+    ports:
+      # Exposed so a GUI client (DBeaver, TablePlus) can connect from the host.
+      # Remove this if a MySQL is already running locally on 3306.
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      # The app service waits for this to pass before starting, so the first
+      # `up` does not fail while MySQL is still initialising.
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD:-password}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+
+  mailpit:
+    # Catches all outgoing mail so nothing escapes during development.
+    # SMTP on 1025, web inbox on http://localhost:8025
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  mysql_data:
+  redis_data:
