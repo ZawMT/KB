@@ -52,3 +52,5 @@ more than one server must stay identical, or when releases run through CI.
 
 Managed platforms — Laravel Forge, Ploi, Laravel Cloud — automate the steps in 03 rather than
 replacing them, so 03 is still the useful thing to have read when one of them misbehaves.
+
+[Additional notes](./Notes/_Notes.md)
