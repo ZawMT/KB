@@ -23,9 +23,28 @@ what has to move off the container filesystem, and rollback by image tag.
 ## Notes
 
 Side topics that come up across the lessons rather than belonging to one of them.
+The full index is at [Notes](./Notes/_Notes.md).
 
 [Composer](./Notes/Composer.md) — `require` vs `global require`, the PATH gotcha,
 `laravel/installer`, `install` vs `update`, and the production flags.
+
+[DB Migration](./Notes/DBMigration.md) — what `up()` and `down()` are for, batches and
+rollbacks, and why an applied migration must never be edited.
+
+[SQLite](./Notes/SQLite.md) — four ways to open `database.sqlite`, and the `sqlite3` prompt
+traps: the transient in-memory database, and a missing dot turning a command into SQL.
+
+[Sail](./Notes/Sail.md) — why both install commands are needed and in which order, what
+`sail:install` writes, and the `.env` rewrite that orphans an existing SQLite file.
+
+[Docker Init](./Notes/Docker-Init.md) — what actually starts a container: `command:` versus
+`CMD`/`ENTRYPOINT`, why Sail's compose file needs neither, and `--host=0.0.0.0`.
+
+[Octane State](./Notes/Octane-State.md) — how a persistent worker leaks request state between
+users, how to fix it, and why queue workers already have the same problem.
+
+[Redis](./Notes/Redis.md) — whether it is required (no), what it is actually used for, and
+when it stops being optional.
 
 ## How These Fit Together
 
@@ -52,5 +71,3 @@ more than one server must stay identical, or when releases run through CI.
 
 Managed platforms — Laravel Forge, Ploi, Laravel Cloud — automate the steps in 03 rather than
 replacing them, so 03 is still the useful thing to have read when one of them misbehaves.
-
-[Additional notes](./Notes/_Notes.md)
