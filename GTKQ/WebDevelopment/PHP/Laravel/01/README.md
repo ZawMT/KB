@@ -243,12 +243,14 @@ Now one route per operation, in `routes/web.php`:
 
 ```php
 use App\Models\Note;
+use Illuminate\Http\Request;
 
-// INSERT — add one row
-Route::get('/notes/add', function () {
+// INSERT — add one row, values from the query string
+// e.g. /notes/add?title=Shopping&body=Buy%20milk
+Route::get('/notes/add', function (Request $request) {
     return Note::create([
-        'title' => 'First',
-        'body'  => 'Trying Eloquent',
+        'title' => $request->query('title', 'Untitled'),
+        'body'  => $request->query('body', ''),
     ]);
 });
 
@@ -269,7 +271,8 @@ Visit them in order:
 
 | URL | What happens |
 |-----|--------------|
-| `http://localhost:8000/notes/add` | Inserts a row, returns it as JSON with its new `id` |
+| `http://localhost:8000/notes/add?title=Shopping&body=Buy milk` | Inserts that row, returns it as JSON with its new `id` |
+| `http://localhost:8000/notes/add` | Inserts a row using the defaults, `Untitled` and empty |
 | `http://localhost:8000/notes` | Returns every row as a JSON array |
 | `http://localhost:8000/notes/delete/1` | Deletes note 1, returns a plain sentence |
 
@@ -278,6 +281,44 @@ Returning a model or a collection from a route gives JSON automatically — no e
 `create()` inserts and returns the saved model in one call. `all()` fetches every row as a
 collection. `findOrFail($id)` looks up one row and raises a 404 if it does not exist, which is
 why deleting an already-deleted id gives a clean "not found" page instead of a crash.
+
+### Where the values come from
+
+Type-hinting `Request $request` in the closure asks Laravel for the current request object; it
+is handed over automatically, with nothing to construct or pass. From it:
+
+```php
+$request->query('title')              // from the ?query=string only
+$request->query('title', 'Untitled')  // ... with a fallback when absent
+$request->input('title')              // query string OR form body — use this for POST
+$request->all()                       // everything, as an array
+```
+
+The second argument is the default, which is what keeps a bare `/notes/add` from inserting
+`null` into a `NOT NULL` column. Type spaces straight into the address bar — the browser encodes
+them to `%20` for you.
+
+A route parameter would be the other option, `/notes/add/{title}/{body}`, but it suits this
+badly: every value becomes mandatory, the order has to be remembered, and any text containing a
+`/` breaks the match. Query strings are the normal choice for optional, unordered values.
+
+**Real applications validate before inserting** rather than trusting whatever arrived:
+
+```php
+Route::post('/notes', function (Request $request) {
+    $data = $request->validate([
+        'title' => 'required|string|max:255',
+        'body'  => 'required|string',
+    ]);
+
+    return Note::create($data);
+});
+```
+
+`validate()` returns only the fields that passed the rules, so the array handed to `create()` is
+already clean — and that pairs with `$fillable` as the second line of defence. On failure it
+throws, and Laravel turns that into a redirect back to the form (or a 422 JSON response for an
+API), so the closure body never runs with bad data.
 
 > **These are all `Route::get` for convenience.** A browser address bar can only issue GET
 > requests, so that is what makes them clickable while learning. Real applications use
