@@ -44,8 +44,13 @@ Which services would you like to install?
 
 Pick `mysql`, `redis` and `mailpit` for a typical setup.
 
-This writes a `docker-compose.yml` into the project root and updates `.env` so `DB_HOST` points
-at the container name rather than `127.0.0.1`.
+This writes a `compose.yaml` into the project root and updates `.env` so `DB_HOST` points at the
+container name rather than `127.0.0.1`.
+
+> Current Sail publishes **`compose.yaml`**, not `docker-compose.yml` — the Compose Spec made the
+> shorter name canonical and Docker looks for it first. Older tutorials naming the long form are
+> describing the legacy filename. The hand-written file below uses `docker-compose.yml` because
+> both names still work; pick one and stay with it.
 
 ### Running
 
@@ -90,6 +95,66 @@ Sail is convenient but opaque. The files in this folder do the same job explicit
 
 Copy all three into the **root of your Laravel project** (next to `artisan` and `composer.json`),
 not into this lesson folder.
+
+### What `.dockerignore` Does
+
+It filters the **build context** — the snapshot of files your machine hands to the Docker daemon
+when `docker build` runs. Anything listed never leaves your machine, so a `COPY . .` in the
+Dockerfile cannot pick it up. It is the `.gitignore` of image building, and it serves two
+purposes: keeping the context small, and keeping secrets out.
+
+Size first. `vendor/` and `node_modules/` are hundreds of megabytes that would be uploaded to the
+daemon on every build only to be thrown away — the container reinstalls them itself, because host
+copies may hold binaries compiled for a different OS or PHP version.
+
+Then the part that matters most:
+
+```
+# Secrets — the running container gets these via the bind mount and Compose,
+# never baked into an image layer.
+.env
+.env.*
+!.env.example
+```
+
+**`.env` holds `APP_KEY`, `DB_PASSWORD` and mail credentials.** Excluding it is not tidiness, it
+is the difference between a secret living on one machine and a secret shipped inside an artefact.
+
+The reason it cannot be undone later is that **image layers are immutable and additive**. Copying
+`.env` in one layer and deleting it in a later `RUN rm` does not remove it — the file remains in
+the earlier layer, readable with `docker history` or by unpacking a `docker save` archive. Push
+that image to a registry and the credential travels with it, to everyone who can pull.
+
+**`.env.*` sweeps up the variants** — `.env.local`, `.env.production`, `.env.testing`, and the
+`.env.backup` somebody made before an edit. Deliberately broad, because the dangerous file is
+always the one nobody remembers creating.
+
+**`!.env.example` puts one file back.** `!` negates an earlier pattern, and it is needed here
+because `.env.*` matches `.env.example` as well. That file is worth keeping: it lists every
+variable name with placeholder values and no real credentials, so it documents what the
+application expects. The negation must appear *after* the rule that excluded it — reversed, it
+does nothing.
+
+### So How Does the Container Get `.env`?
+
+Through two paths, neither of which is the image:
+
+**The bind mount.** `./:/var/www/html` maps the project folder into the container when it
+*starts*. `.env` is visible inside because the host filesystem is mapped in live — not because
+anything was copied at build time.
+
+**Compose.** It reads `.env` from the host to resolve `${DB_PASSWORD}`-style substitutions in
+`docker-compose.yml` and to fill `environment:` entries, injecting them as environment variables
+into the running process.
+
+The principle underneath: **build time bakes and ships, run time injects per environment.** That
+separation is what lets one identical image run in development, staging and production with
+different credentials in each — and it is why a secret belongs in neither the image nor git.
+
+> The `Dockerfile` in this folder has no `COPY . .` — all code arrives through the bind mount, so
+> the `.env` rules here are defensive rather than load-bearing, and the live benefit is context
+> size. They become essential the moment an image copies the source in, which is exactly what a
+> production build does.
 
 ### Configuring `.env`
 
