@@ -223,16 +223,66 @@ Then apply it:
 php artisan migrate
 ```
 
-Now `App\Models\Note` can read and write that table:
+### 5. Reading and writing the table
+
+Before the model can accept an array of values, it has to say which columns are safe to fill.
+In `app/Models/Note.php`:
 
 ```php
+class Note extends Model
+{
+    protected $fillable = ['title', 'body'];
+}
+```
+
+Without that line, `Note::create([...])` throws `MassAssignmentException`. Laravel refuses by
+default so that a stray form field cannot quietly write to a column you never meant to expose —
+`is_admin` being the classic example.
+
+Now one route per operation, in `routes/web.php`:
+
+```php
+use App\Models\Note;
+
+// INSERT — add one row
+Route::get('/notes/add', function () {
+    return Note::create([
+        'title' => 'First',
+        'body'  => 'Trying Eloquent',
+    ]);
+});
+
+// SELECT ALL — list every row
 Route::get('/notes', function () {
-    Note::create(['title' => 'First', 'body' => 'Trying Eloquent']);
     return Note::all();
+});
+
+// DELETE — remove one row by id
+Route::get('/notes/delete/{id}', function (int $id) {
+    Note::findOrFail($id)->delete();
+
+    return "Deleted note {$id}";
 });
 ```
 
-Returning a model or collection from a route gives JSON automatically.
+Visit them in order:
+
+| URL | What happens |
+|-----|--------------|
+| `http://localhost:8000/notes/add` | Inserts a row, returns it as JSON with its new `id` |
+| `http://localhost:8000/notes` | Returns every row as a JSON array |
+| `http://localhost:8000/notes/delete/1` | Deletes note 1, returns a plain sentence |
+
+Returning a model or a collection from a route gives JSON automatically — no encoding step.
+
+`create()` inserts and returns the saved model in one call. `all()` fetches every row as a
+collection. `findOrFail($id)` looks up one row and raises a 404 if it does not exist, which is
+why deleting an already-deleted id gives a clean "not found" page instead of a crash.
+
+> **These are all `Route::get` for convenience.** A browser address bar can only issue GET
+> requests, so that is what makes them clickable while learning. Real applications use
+> `Route::post` for inserts and `Route::delete` for deletions — a URL that changes data on a
+> plain visit is something a search-engine crawler can trigger by accident.
 
 ## Useful artisan Commands
 
