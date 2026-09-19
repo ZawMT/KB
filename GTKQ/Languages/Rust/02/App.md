@@ -1,0 +1,2 @@
+# App requirement
+CLI number guessing game — the classic Rust Book first project. Uses rand (external crate) + std::io for input. Good for: seeing cargo add, Cargo.toml/Cargo.lock, and cargo run with stdin.

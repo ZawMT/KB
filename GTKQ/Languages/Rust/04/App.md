@@ -1,0 +1,2 @@
+# App requirement
+Simple HTTP status checker (give it a list of URLs, it reports up/down) — uses reqwest or ureq + tokio if async. Good for: async crates, error handling with Result/? across a real dependency chain.
