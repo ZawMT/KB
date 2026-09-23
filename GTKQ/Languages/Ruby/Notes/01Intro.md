@@ -9,7 +9,7 @@ To learn Ruby, here's what you'd typically need:
    - syntax basics (variables, types, string/number operations)
    - control flow (if/unless, loops)
    - methods (defining, arguments, return values)
-   - collections (arrays, hashes) and iteration (`each`, blocks)
+   - collections (arrays, hashes — similar to Dictionary in C#) and iteration (`each`, blocks)
    - symbols vs strings (a Ruby-specific concept)
    - object orientation (classes, modules, mixins) - Ruby is "everything is an object"
    - blocks/procs/lambdas (distinctive Ruby feature)
