@@ -17,3 +17,9 @@ Task vs ValueTask, and the rules for using ValueTask safely:
 
 Dependency injection: lifetimes, registration, captive dependencies and testing:
 [DI](_Notes/DI.md)
+
+What the sealed keyword does, and when to seal classes and members:
+[sealed](_Notes/sealed.md)
+
+Lazy<T>: deferred, one-time, thread-safe creation of objects:
+[Lazy](_Notes/Lazy.md)
