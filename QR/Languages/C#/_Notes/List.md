@@ -3,7 +3,7 @@
 
 #### [Back to C# contents](../_Contents.md)
 
-Interview question: *What happens when an entry is deleted from a list in C#?*
+*What happens when an entry is deleted from a list in C#?*
 
 ### `List<T>` is backed by an array
 
@@ -76,6 +76,6 @@ Looping **forwards** with `RemoveAt(i)` doesn't throw, but it **skips** the elem
 | `LinkedList<T>` (given the node) | O(1) | just re-link neighbours, no shifting |
 | `HashSet<T>` / `Dictionary<K,V>` | O(1) average | hash lookup, no ordering to maintain |
 
-### Interview answer
+### Short answer
 
 *"`List<T>` wraps an array. Removing an item shifts all later elements left with `Array.Copy`, clears the last slot so the GC can collect the object, decrements `Count` and bumps an internal version. Capacity stays the same. It's O(n), except for the last element, and changing the list during `foreach` throws because of that version check."*

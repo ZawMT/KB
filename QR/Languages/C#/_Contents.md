@@ -7,10 +7,13 @@ Here are some key points to take note about C#:
 [Key points](_KeyPoints.md)
 
 IEnumerable vs IQueryable, and when the query runs in memory or in the database:
-[IQueryable](Notes/IQueryable.md)
+[IQueryable](_Notes/IQueryable.md)
 
 What happens inside List<T> when an entry is removed:
-[List](Notes/List.md)
+[List](_Notes/List.md)
 
 Task vs ValueTask, and the rules for using ValueTask safely:
-[Task](Notes/Task.md)
+[Task](_Notes/Task.md)
+
+Dependency injection: lifetimes, registration, captive dependencies and testing:
+[DI](_Notes/DI.md)

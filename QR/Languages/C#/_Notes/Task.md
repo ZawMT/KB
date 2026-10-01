@@ -3,7 +3,7 @@
 
 #### [Back to C# contents](../_Contents.md)
 
-Interview question: *What is `Task` and what is `ValueTask`?*
+*What is `Task` and what is `ValueTask`?*
 
 Both represent **an asynchronous operation you can `await`**. The difference is about memory allocation and how you're allowed to use them.
 
@@ -156,6 +156,6 @@ Where you'll see `ValueTask` in .NET itself:
 - `IAsyncDisposable.DisposeAsync()` returns `ValueTask`.
 - `IAsyncEnumerator<T>.MoveNextAsync()` returns `ValueTask<bool>`, because most items in an `await foreach` are already available.
 
-### Interview answer
+### Short answer
 
 *"`Task` is a reference type representing an async operation. It's flexible and can be awaited many times. `ValueTask` is a struct that avoids allocating when the result is already available, which helps in hot paths that usually complete synchronously. But it must be awaited only once, and never concurrently. Use `Task` by default and `ValueTask` only when measurements justify it."*

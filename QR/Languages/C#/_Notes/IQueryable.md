@@ -3,7 +3,7 @@
 
 #### [Back to C# contents](../_Contents.md)
 
-Interview question: *What is the difference between `IEnumerable` and `IQueryable`?*
+*What is the difference between `IEnumerable` and `IQueryable`?*
 
 Short answer: **`IEnumerable` filters in memory in your app. `IQueryable` builds a query that runs at the data source, usually the database.**
 
@@ -63,7 +63,7 @@ IQueryable<int> q = list.AsQueryable();
 
 This compiles, but there's no database behind it. The provider just compiles the expression tree and runs it in memory. You get no benefit. It's mostly used in unit tests, to fake an `IQueryable` data source.
 
-Interview answer: *"`IEnumerable` is for in-memory iteration. `IQueryable` is an abstraction that lets a LINQ provider translate the query and run it somewhere else. EF Core is the most common provider, and it translates to SQL."*
+In short: *"`IEnumerable` is for in-memory iteration. `IQueryable` is an abstraction that lets a LINQ provider translate the query and run it somewhere else. EF Core is the most common provider, and it translates to SQL."*
 
 ### When to use `AsEnumerable()` on purpose
 
@@ -277,7 +277,7 @@ In ASP.NET Core this is less common, because the `DbContext` is usually injected
 
 This is a debated topic, not a strict rule. Some teams **do** return `IQueryable` on purpose, e.g. for OData or flexible paging and filtering APIs.
 
-Interview answer: *"Returning `IQueryable` is flexible, but it lets query logic leak out of the data layer, and deferred execution can run the query after the context is disposed. I'd usually return materialized results or purpose-specific methods, and use `IQueryable` internally."*
+In short: *"Returning `IQueryable` is flexible, but it lets query logic leak out of the data layer, and deferred execution can run the query after the context is disposed. I'd usually return materialized results or purpose-specific methods, and use `IQueryable` internally."*
 
 ### Other related follow-ups
 
