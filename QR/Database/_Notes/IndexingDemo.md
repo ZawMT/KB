@@ -433,3 +433,127 @@ Execution Time: 0.07 ms
 ```sql
 DROP SCHEMA lab CASCADE;
 ```
+
+### Equivalent tools in SQL Server and Oracle
+
+The names differ, but you look for the same things: **how rows were accessed, rows read vs returned, pages read, and estimated vs actual rows.**
+
+#### SQL Server
+
+**SSMS** = **SQL Server Management Studio**, Microsoft's GUI tool for SQL Server (the counterpart of pgAdmin).
+
+**Option A: SSMS graphical plan (most common)**
+- **Ctrl+M** (*Include Actual Execution Plan*), then run the query.
+- An **Execution plan** tab appears next to *Results*. Hover over an operator to see estimated vs actual rows.
+- **Ctrl+L** shows the **estimated** plan without running the query, like plain `EXPLAIN`.
+
+**Option B: page reads and timings as text** (the closest match to `BUFFERS`)
+
+```sql
+SET STATISTICS IO, TIME ON;
+
+SELECT * FROM lab.orders WHERE customer_id = 42;
+
+SET STATISTICS IO, TIME OFF;
+```
+
+The *Messages* tab shows:
+
+```
+Table 'orders'. Scan count 1, logical reads 11, physical reads 3, ...
+SQL Server Execution Times: CPU time = 0 ms, elapsed time = 0 ms.
+```
+
+- **`logical reads`** = all pages read, roughly PostgreSQL's `hit + read`.
+- **`physical reads`** = pages that had to come from disk, roughly PostgreSQL's `read`.
+
+**Option C: the plan as text or XML**
+
+```sql
+SET STATISTICS PROFILE ON;  -- actual plan as rows of text
+-- or
+SET STATISTICS XML ON;      -- actual plan as XML (click it to open the graphical view)
+```
+
+- **Extra:** *Live Query Statistics* (SSMS toolbar) shows a long-running query's plan **while it runs**, with rows flowing between operators.
+
+#### Oracle
+
+**Option A: estimated plan** (like plain `EXPLAIN`)
+
+```sql
+EXPLAIN PLAN FOR
+SELECT * FROM orders WHERE customer_id = 42;
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+```
+
+**Option B: actual plan with rows and page reads** (the closest match to `EXPLAIN (ANALYZE, BUFFERS)`)
+
+```sql
+SELECT /*+ GATHER_PLAN_STATISTICS */ *
+FROM orders WHERE customer_id = 42;
+
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(NULL, NULL, 'ALLSTATS LAST'));
+```
+
+- **`E-Rows`** (estimated) vs **`A-Rows`** (actual)
+- **`Buffers`**: pages read
+- **`A-Time`**: actual time
+- **`Starts`**: how many times the step ran (like `loops`)
+
+**Option C: AUTOTRACE** (SQL\*Plus / SQL Developer)
+
+```sql
+SET AUTOTRACE TRACEONLY;   -- show the plan + statistics, not the result rows
+SELECT * FROM orders WHERE customer_id = 42;
+```
+
+- **`consistent gets`** = pages read (logical reads). **`physical reads`** = pages from disk.
+- **SQL Developer** (Oracle's free GUI tool): **F10** shows the estimated plan, **F6** runs Autotrace.
+- **Extra:** **SQL Monitor** (`DBMS_SQLTUNE.REPORT_SQL_MONITOR`) gives a detailed live report for long-running queries.
+
+#### Vocabulary: what each plan calls things
+
+| Meaning | PostgreSQL | SQL Server | Oracle |
+|---|---|---|---|
+| Read the whole table | `Seq Scan` | `Table Scan` / `Clustered Index Scan` | `TABLE ACCESS FULL` |
+| Walk the B-tree to matching keys | `Index Scan` (`Index Cond`) | `Index Seek` | `INDEX RANGE SCAN` / `INDEX UNIQUE SCAN` |
+| Fetch the rest of the row from the table | (part of `Index Scan`) / `Bitmap Heap Scan` | `Key Lookup` / `RID Lookup` | `TABLE ACCESS BY INDEX ROWID [BATCHED]` |
+| Answer from the index only | `Index Only Scan` | `Index Seek` with no lookup (covering index) | `INDEX RANGE SCAN` with no table access |
+| Read the whole index | `Index Scan` without a condition / `Index Only Scan` | `Index Scan` | `INDEX FULL SCAN` / `INDEX FAST FULL SCAN` |
+| Parallel workers | `Gather` + `Parallel ...` | `Parallelism (Gather Streams)` | `PX COORDINATOR` / `PX ...` |
+| Condition checked per row | `Filter` | `Predicate` | `filter(...)` |
+| Condition applied in the index | `Index Cond` | `Seek Predicate` | `access(...)` |
+| Pages read | `Buffers: shared hit + read` | `logical reads` | `Buffers` / `consistent gets` |
+| Pages from disk | `shared read` | `physical reads` | `physical reads` |
+| Estimated vs actual rows | `rows=` (plan) vs `actual ... rows=` | Estimated vs Actual Number of Rows | `E-Rows` vs `A-Rows` |
+| How many times a step ran | `loops` | Number of Executions | `Starts` |
+
+#### Review, statistics and maintenance
+
+| Task | PostgreSQL | SQL Server | Oracle |
+|---|---|---|---|
+| **Find the most costly queries** | `pg_stat_statements` | **Query Store**, `sys.dm_exec_query_stats` | `V$SQL`, **AWR** reports, **ASH** |
+| **Find unused indexes** | `pg_stat_user_indexes` (`idx_scan = 0`) | `sys.dm_db_index_usage_stats` | `DBA_INDEX_USAGE` (12.2+), or `ALTER INDEX ... MONITORING USAGE` + `V$OBJECT_USAGE` |
+| **Missing-index suggestions** | None built in | `sys.dm_db_missing_index_details`, plan hints, *Database Engine Tuning Advisor* | **SQL Tuning Advisor** / **SQL Access Advisor** |
+| **Update statistics** | `ANALYZE` (autovacuum) | `UPDATE STATISTICS` (auto-update on by default) | `DBMS_STATS.GATHER_TABLE_STATS` (automatic nightly job) |
+| **Rebuild an index** | `REINDEX [CONCURRENTLY]` | `ALTER INDEX ... REBUILD [WITH (ONLINE = ON)]` / `REORGANIZE` | `ALTER INDEX ... REBUILD [ONLINE]` |
+| **Clean up old row versions** | `VACUUM` | Not needed (version store in `tempdb`) | Not needed (**undo tablespace**) |
+| **Detect regressed plans** | Compare plans yourself | **Query Store**: *Regressed Queries* | **SQL Plan Management** (baselines), AWR |
+
+- ⚠️ **Oracle licensing:** **AWR, ASH, SQL Monitor and the Tuning Advisors** need the paid **Diagnostics Pack** / **Tuning Pack** on Enterprise Edition. `DBMS_XPLAN`, `AUTOTRACE` and `V$SQL` are free to use.
+
+#### Summary
+
+| | Estimated plan | Actual plan + page reads |
+|---|---|---|
+| **PostgreSQL** | `EXPLAIN` | `EXPLAIN (ANALYZE, BUFFERS)` |
+| **SQL Server** | Ctrl+L (SSMS) | Ctrl+M + `SET STATISTICS IO, TIME ON` |
+| **Oracle** | `EXPLAIN PLAN FOR` + `DBMS_XPLAN.DISPLAY` | `/*+ GATHER_PLAN_STATISTICS */` + `DBMS_XPLAN.DISPLAY_CURSOR(..., 'ALLSTATS LAST')`, or `AUTOTRACE` |
+
+The method is the same in all three:
+1. Look at **how rows were accessed** (full scan vs index).
+2. Compare **rows read** with **rows returned**.
+3. Compare **page reads** before and after the change.
+4. Check that **estimated** and **actual** rows are close.
