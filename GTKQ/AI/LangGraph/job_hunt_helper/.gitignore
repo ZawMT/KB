@@ -1,0 +1,7 @@
+.env
+.venv/
+__pycache__/
+
+# Personal data: resume, JDs, and everything generated from them
+*.pdf
+JDs/
