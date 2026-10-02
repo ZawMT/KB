@@ -9,3 +9,9 @@
 - Design Pattern - Decorator: [Decorator](_Notes/DesignPatterns_04_Decorator.md)
 - Design Pattern - Facade: [Facade](_Notes/DesignPatterns_05_Facade.md)
 - Design Pattern - Observer: [Observer](_Notes/DesignPatterns_06_Observer.md)
+
+## Concurrency
+Concurrency: [Contents](Concurrency/_Contents.md)
+
+## Cryptography
+Cryptography: [Contents](Cryptography/_Contents.md)
