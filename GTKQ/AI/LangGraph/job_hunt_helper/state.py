@@ -4,11 +4,11 @@ from models import (
     CandidateInfo,
     Critique,
     Decision,
+    ExperienceCheck,
     InterviewQuestions,
     JobInfo,
     Recommendations,
     RedFlags,
-    SeniorityFit,
     SkillMatch,
 )
 
@@ -29,7 +29,7 @@ class JDState(TypedDict, total=False):
     # nodes_analyze
     skill_match: SkillMatch
     red_flags: RedFlags
-    seniority: SeniorityFit
+    experience_check: ExperienceCheck
     decision: Decision
 
     # nodes_cover_letter

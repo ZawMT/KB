@@ -16,7 +16,7 @@ def load_resume(state: JDState) -> dict:
 
 def extract_job(state: JDState) -> dict:
     job_info = llm.with_structured_output(JobInfo).invoke(
-        "Extract the organisation, position, seniority, required programming languages, "
+        "Extract the organisation, position, required minimum years of experience, required programming languages, "
         f"databases, other skills, and main responsibilities from this job description:\n\n"
         f"{state['jd_text']}"
     )

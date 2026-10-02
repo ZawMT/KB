@@ -18,8 +18,9 @@ def _recommendations_md(job: JobInfo, rec: Recommendations) -> str:
 
 
 def _interviews_md(job: JobInfo, qa: InterviewQuestions) -> str:
-    items = qa.items[:5]
-    questions = "\n".join(f"{i}. {item.question}" for i, item in enumerate(items, 1))
+    items = qa.items[:10]
+    questions = "\n".join(f"{i}. {item.question}" for i,
+                          item in enumerate(items, 1))
     answers = "\n\n".join(
         f"### {i}. {item.question}\n\n{item.answer}" for i, item in enumerate(items, 1)
     )
@@ -49,14 +50,16 @@ def write_outputs(state: JDState) -> dict:
     # Always: the extracted job info plus the analysis and decision.
     summary = {
         key: state[key].model_dump()
-        for key in ("job_info", "skill_match", "red_flags", "seniority", "decision")
+        for key in ("job_info", "skill_match", "red_flags", "experience_check", "decision")
     }
     write(f"{name}.json", json.dumps(summary, indent=2))
 
     if state["decision"].should_apply:
         job = state["job_info"]
         write(f"{name}-CoverLetter.md", state["cover_letter"])
-        write(f"{name}-Recommendations.md", _recommendations_md(job, state["recommendations"]))
-        write(f"{name}-Interviews.md", _interviews_md(job, state["interview_questions"]))
+        write(f"{name}-Recommendations.md",
+              _recommendations_md(job, state["recommendations"]))
+        write(f"{name}-Interviews.md",
+              _interviews_md(job, state["interview_questions"]))
 
     return {"output_files": written}

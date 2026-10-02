@@ -1,6 +1,6 @@
 from langgraph.graph import END, START, StateGraph
 
-from nodes_analyze import analyze_red_flags, analyze_seniority, analyze_skills, decide
+from nodes_analyze import analyze_red_flags, analyze_skills, check_min_experience, decide
 from nodes_cover_letter import (
     MAX_REVISIONS,
     cover_letter_done,
@@ -13,7 +13,7 @@ from nodes_output import write_outputs
 from nodes_recommend import recommend
 from state import JDState
 
-ANALYZE_NODES = ["analyze_skills", "analyze_red_flags", "analyze_seniority"]
+ANALYZE_NODES = ["analyze_skills", "analyze_red_flags", "check_min_experience"]
 APPLY_NODES = ["draft_cover_letter", "recommend", "prepare_interview"]
 
 
@@ -41,7 +41,7 @@ def build_graph():
     graph.add_node("extract_resume", extract_resume)
     graph.add_node("analyze_skills", analyze_skills)
     graph.add_node("analyze_red_flags", analyze_red_flags)
-    graph.add_node("analyze_seniority", analyze_seniority)
+    graph.add_node("check_min_experience", check_min_experience)
     graph.add_node("decide", decide)
     graph.add_node("draft_cover_letter", draft_cover_letter)
     graph.add_node("critique_cover_letter", critique_cover_letter)
