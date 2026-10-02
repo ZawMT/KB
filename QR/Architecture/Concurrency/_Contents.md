@@ -12,7 +12,7 @@ Concurrency vs multi-threading vs parallelism, and why the difference matters:
 The other approaches besides multi-threading: processes, async, green threads, actors, channels and more:
 [Approaches](_Notes/Concurrency_02_Approaches.md)
 
-Task vs Thread vs Process, umbrella terms, other similar entities, and what happens to threads during an await:
+Task vs Thread vs Process ("contains" vs "runs"), what a runtime is, other similar entities, and what happens to threads during an await:
 [Entities](_Notes/Concurrency_03_Entities.md)
 
 Synchronisation: why it's needed, the approaches (locks, semaphores, signals, atomics...) and how languages support it:

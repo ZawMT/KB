@@ -23,3 +23,6 @@ What the sealed keyword does, and when to seal classes and members:
 
 Lazy<T>: deferred, one-time, thread-safe creation of objects:
 [Lazy](_Notes/Lazy.md)
+
+The volatile keyword: visibility and ordering between threads, and why it does not make ++ atomic:
+[volatile](_Notes/volatile.md)
