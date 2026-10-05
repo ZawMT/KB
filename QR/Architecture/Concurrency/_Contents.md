@@ -18,6 +18,15 @@ Task vs Thread vs Process ("contains" vs "runs"), what a runtime is, other simil
 Synchronisation: why it's needed, the approaches (locks, semaphores, signals, atomics...) and how languages support it:
 [Synchronisation](_Notes/Synchronisation_01_Overview.md)
 
+Replicating concurrency bugs: widening the race window, starting gates, invariants, Release builds and forcing interleavings:
+[Replication](_Notes/Concurrency_04_Replication.md)
+
+Visibility bugs: why a write may never be seen by another thread, atomicity vs visibility vs ordering, and how memory barriers fix it:
+[Visibility bug](_Notes/Concurrency_05_VisibilityBug.md)
+
+Named semaphores: sharing across processes, name collisions, Local\ vs Global\, and when to open an existing one on purpose:
+[Named semaphore](_Notes/Concurrency_06_NamedSemaphore.md)
+
 ### Samples
 
 Basics of creating, starting, joining and synchronising threads in C#:
@@ -31,3 +40,6 @@ Running work with Task, async/await, WhenAll/WhenAny, exceptions and cancellatio
 
 Starting, monitoring and controlling other processes in C#:
 [Process (C#)](_Samples/Process_C%23.md)
+
+Runnable programs that reproduce race conditions, visibility bugs and deadlocks on purpose in C#:
+[Replication (C#)](_Samples/Replication_C%23.md)
