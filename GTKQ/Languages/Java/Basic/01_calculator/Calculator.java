@@ -4,7 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.math.MathContext;
+import java.math.RoundingMode;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -71,8 +71,10 @@ public class Calculator {
             BigDecimal b = new BigDecimal(params.getOrDefault("b", ""));
             String op = params.getOrDefault("op", "");
 
-            BigDecimal result = calculate(a, op, b);
-            // stripTrailingZeros: 3.50 -> 3.5 ; toPlainString: avoids "1E+2" for 100
+            // Up to 2 decimal places, rounding halves up (1.005 -> 1.01).
+            // Needed for "mul" too: an answer carried forward (e.g. 3.33) can be an input, and 3.33 x 3.33 = 11.0889
+            BigDecimal result = calculate(a, op, b).setScale(2, RoundingMode.HALF_UP);
+            // stripTrailingZeros: 19.00 -> 19, 3.50 -> 3.5 ; toPlainString: avoids "1E+2" for 100
             send(exchange, 200, "text/plain", result.stripTrailingZeros().toPlainString());
         } catch (NumberFormatException e) {          // must come before IllegalArgumentException (it is a subclass)
             send(exchange, 400, "text/plain", "Invalid number");
@@ -91,8 +93,9 @@ public class Calculator {
                 if (b.signum() == 0) {
                     throw new ArithmeticException("Cannot divide by 0");
                 }
-                // DECIMAL64 = 16 significant digits; without a MathContext, 10 / 3 would throw
-                yield a.divide(b, MathContext.DECIMAL64);
+                // Round straight to 2 decimal places; without a scale, 10 / 3 would throw
+                // (BigDecimal refuses to produce an endless 3.333...)
+                yield a.divide(b, 2, RoundingMode.HALF_UP);
             }
             default -> throw new IllegalArgumentException("Unknown operator: " + op);
         };

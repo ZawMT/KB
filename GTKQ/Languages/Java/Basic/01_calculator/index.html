@@ -13,7 +13,8 @@
       <div class="box" id="op"></div>
       <div class="box" id="input2"></div>
       <div class="box" id="eq">=</div>
-      <div class="box" id="answer"></div>
+      <!-- tabindex="0" makes the box focusable, so it can receive arrow-key presses -->
+      <div class="box" id="answer" tabindex="0"></div>
     </div>
 
     <!-- data-op holds the word sent to Java ("+" in a URL would arrive as a space) -->
@@ -109,7 +110,19 @@
       answer.textContent = text;
       answer.title = text;                          // hover shows the full value if it is cut off
       answer.classList.toggle("error", isError);
+      answer.scrollLeft = 0;                        // always start at the first characters
     }
+
+    // Arrow keys scroll a long answer (click the answer box first to focus it)
+    const SCROLL_STEP = 12;                         // about one digit wide
+    answer.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight")     answer.scrollLeft += SCROLL_STEP;
+      else if (event.key === "ArrowLeft") answer.scrollLeft -= SCROLL_STEP;
+      else if (event.key === "Home")      answer.scrollLeft = 0;
+      else if (event.key === "End")       answer.scrollLeft = answer.scrollWidth;
+      else return;                                  // any other key: leave it alone
+      event.preventDefault();                       // stop the key also scrolling the whole page
+    });
 
     function clearAll() {
       for (const box of [input1, op, input2, eq, answer]) box.textContent = "";

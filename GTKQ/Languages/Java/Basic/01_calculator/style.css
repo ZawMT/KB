@@ -41,6 +41,21 @@ body {
   overflow: hidden;
 }
 
+/* Answer box: a long answer shows its first characters; scroll right to see the rest
+   (click the box, then arrow keys / Home / End, or swipe sideways on a trackpad) */
+#answer {
+  justify-content: flex-start;    /* fallback for browsers without "safe" */
+  justify-content: safe center;   /* centred when it fits, starts at the left when it overflows */
+  overflow-x: auto;
+  scrollbar-width: thin;
+  cursor: text;
+}
+
+#answer:focus {
+  outline: 2px solid #c77d1a;
+  outline-offset: -2px;
+}
+
 .box.error {
   color: #ff7b7b;
   font-size: 0.75rem;
