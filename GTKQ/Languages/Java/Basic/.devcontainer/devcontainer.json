@@ -1,0 +1,12 @@
+{
+  "name": "Java Maven",
+  "dockerComposeFile": "/Users/zaw/MyFiles/Repos/Dev/KB/KB/GTKQ/Languages/Java/Basic/.devcontainer/java-compose.yml",
+  "service": "java",
+  "workspaceFolder": "/kb/GTKQ/Languages/Java/Basic",
+  "shutdownAction": "none",
+  "customizations": { 
+    "vscode": { 
+      "extensions": ["vscjava.vscode-java-pack"] 
+    } 
+  }
+}

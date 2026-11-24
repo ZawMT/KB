@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="calc">
+    <div class="display">
+      <div class="box" id="input1"></div>
+      <div class="box" id="op"></div>
+      <div class="box" id="input2"></div>
+      <div class="box" id="eq">=</div>
+      <div class="box" id="answer"></div>
+    </div>
+
+    <!-- data-op holds the word sent to Java ("+" in a URL would arrive as a space) -->
+    <div class="keys">
+      <button data-digit="7">7</button>
+      <button data-digit="8">8</button>
+      <button data-digit="9">9</button>
+      <button class="op" data-op="div">÷</button>
+
+      <button data-digit="4">4</button>
+      <button data-digit="5">5</button>
+      <button data-digit="6">6</button>
+      <button class="op" data-op="mul">×</button>
+
+      <button data-digit="1">1</button>
+      <button data-digit="2">2</button>
+      <button data-digit="3">3</button>
+      <button class="op" data-op="sub">−</button>
+
+      <button class="clear" data-action="clear">C</button>
+      <button data-digit="0">0</button>
+      <button class="eq" data-action="equals">=</button>
+      <button class="op" data-op="add">+</button>
+    </div>
+  </div>
+
+  <script>
+    const input1 = document.getElementById("input1");
+    const op     = document.getElementById("op");
+    const input2 = document.getElementById("input2");
+    const eq     = document.getElementById("eq");
+    const answer = document.getElementById("answer");
+
+    let opCode = "";     // "add" | "sub" | "mul" | "div" (what gets sent to Java)
+    let done = false;    // true once "=" has been pressed
+
+    // One listener for the whole grid; work out which button was clicked
+    document.querySelector(".keys").addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+
+      if (button.dataset.digit)                    pressDigit(button.dataset.digit);
+      else if (button.dataset.op)                  pressOperator(button.dataset.op, button.textContent);
+      else if (button.dataset.action === "equals") pressEquals();
+      else if (button.dataset.action === "clear")  clearAll();
+    });
+
+    function pressDigit(digit) {
+      if (done) clearAll();                         // a digit after a result starts a new calculation
+
+      const target = opCode ? input2 : input1;      // before the operator -> Input 1, after -> Input 2
+      if (target.textContent === "0") {
+        target.textContent = digit;                 // no leading zeros ("07" -> "7")
+      } else if (target.textContent.length < 12) {
+        target.textContent += digit;
+      }
+    }
+
+    function pressOperator(code, symbol) {
+      if (done) {
+        // Carry the answer forward: 12 + 7 = 19, then "×" gives 19 × _
+        if (answer.classList.contains("error")) return;
+        const previous = answer.textContent;
+        clearAll();
+        input1.textContent = previous;
+      }
+
+      if (!input1.textContent) return;              // need Input 1 first
+      if (input2.textContent) return;               // operator is fixed once Input 2 has started
+
+      opCode = code;
+      op.textContent = symbol;                      // may replace an earlier operator choice
+    }
+
+    async function pressEquals() {
+      if (done || !input2.textContent) return;      // need both inputs, and only once
+      done = true;
+      eq.textContent = "=";
+
+      // URLSearchParams builds and encodes "a=12&op=add&b=7"
+      const params = new URLSearchParams({ a: input1.textContent, op: opCode, b: input2.textContent });
+
+      try {
+        const response = await fetch("/calculate?" + params);
+        const text = await response.text();
+        showAnswer(text, !response.ok);             // 400 from Java -> show the message as an error
+      } catch (error) {
+        showAnswer("Server not reachable", true);   // e.g. the Java server was stopped
+      }
+    }
+
+    function showAnswer(text, isError) {
+      answer.textContent = text;
+      answer.title = text;                          // hover shows the full value if it is cut off
+      answer.classList.toggle("error", isError);
+    }
+
+    function clearAll() {
+      for (const box of [input1, op, input2, eq, answer]) box.textContent = "";
+      answer.title = "";
+      answer.classList.remove("error");
+      opCode = "";
+      done = false;
+    }
+  </script>
+</body>
+</html>
